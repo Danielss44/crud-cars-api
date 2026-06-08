@@ -1,21 +1,46 @@
 package com.danielseab.cruid_cars.services;
 
 import com.danielseab.cruid_cars.dto.CarsRequestDTO;
+import com.danielseab.cruid_cars.dto.CarsResponseDTO;
 import com.danielseab.cruid_cars.infra.entity.cars.Cars;
+import com.danielseab.cruid_cars.infra.exceptions.CarExistsException;
+import com.danielseab.cruid_cars.infra.exceptions.CarNotFoundException;
 import com.danielseab.cruid_cars.infra.repository.CarsRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
+
 public class CarsServices {
 
-    @Autowired
-   private CarsRepository carsRepository;
 
-    public Cars cadastroCarro(CarsRequestDTO dto){
+   private final CarsRepository carsRepository;
+
+   public CarsResponseDTO toDTO(@RequestBody Cars cars){
+       return new CarsResponseDTO(
+               cars.getId(),
+               cars.getPlaca(),
+               cars.getModelo(),
+               cars.getMarca(),
+               cars.getAno(),
+               cars.getPreco(),
+               cars.getKm(),
+               cars.getStatus()
+       );
+   }
+
+    public CarsResponseDTO cadastroCarro(@RequestBody CarsRequestDTO dto){
+        if(carsRepository.existsByPlaca(dto.getPlaca())){
+            throw new CarExistsException();
+        }
+
         Cars cars = new Cars();
 
         cars.setPlaca(dto.getPlaca());
@@ -26,19 +51,24 @@ public class CarsServices {
         cars.setKm(dto.getKm());
         cars.setStatus(dto.getStatus());
 
-        return carsRepository.save(cars);
+        return toDTO(carsRepository.save(cars));
     }
 
-    public List<Cars> listarCarros(){
-        return carsRepository.findAll();
+    public List<CarsResponseDTO> listarCarros(){
+        return carsRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 
-    public Cars buscarID(Long id){
-        return carsRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Carro nâo encrontado"));
+    public CarsResponseDTO buscarID(@PathVariable Long id){
+       Cars cars = carsRepository.findById(id).orElseThrow(() -> new CarNotFoundException());
+       return toDTO(cars);
     }
 
-    public Cars atualizarCarro(Long id, CarsRequestDTO carroAtualizado){
-        Cars cars = buscarID(id);
+    public CarsResponseDTO atualizarCarro(@PathVariable Long id, @RequestBody CarsRequestDTO carroAtualizado){
+        Cars cars = carsRepository.findById(id)
+                .orElseThrow(() -> new CarNotFoundException());
 
             cars.setPlaca(carroAtualizado.getPlaca());
             cars.setModelo(carroAtualizado.getModelo());
@@ -48,12 +78,14 @@ public class CarsServices {
             cars.setKm(carroAtualizado.getKm());
             cars.setStatus(carroAtualizado.getStatus());
 
-            return carsRepository.save(cars);
+            return toDTO(carsRepository.save(cars));
             
     }
 
-    public void deletarCarros(Long id) {
-        carsRepository.deleteById(id);
+    public void deletarCarros(@PathVariable Long id) {
+       Cars cars = carsRepository.findById(id)
+               .orElseThrow(() -> new CarNotFoundException());
+        carsRepository.delete(cars);
     }
 
 }

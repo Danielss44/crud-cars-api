@@ -11,5 +11,7 @@ import java.util.Optional;
 public interface CarsRepository extends JpaRepository<Cars, String> {
     Optional<Cars> findById(Long id);
 
+    boolean existsByPlaca(String placa);
+
     void deleteById(Long id);
 }

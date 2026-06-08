@@ -1,8 +1,11 @@
 package com.danielseab.cruid_cars.infra.entity.cars;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -26,11 +29,11 @@ public class Cars {
     @NotBlank
     private String marca; //marca
 
-
+    @Min(1900)
     private int ano;
 
 
-    private float preco;
+    private BigDecimal preco;
 
     private int km;
 

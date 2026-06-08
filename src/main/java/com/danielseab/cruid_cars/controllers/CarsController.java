@@ -23,36 +23,21 @@ public class CarsController {
 
     @PostMapping
     public ResponseEntity<CarsResponseDTO> register(@RequestBody CarsRequestDTO dto){
-        Cars cars = carsServices.cadastroCarro(dto);
-
-        CarsResponseDTO response;
-
-        response = new CarsResponseDTO(
-                cars.getId(),
-                cars.getPlaca(),
-                cars.getModelo(),
-                cars.getMarca(),
-                cars.getAno(),
-                cars.getPreco(),
-                cars.getKm(),
-                cars.getStatus()
-        );
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(201).body(carsServices.cadastroCarro(dto));
     }
 
     @GetMapping
-    public ResponseEntity<List<Cars>> listarCarros(){
+    public ResponseEntity<List<CarsResponseDTO>> listarCarros(){
         return ResponseEntity.ok(carsServices.listarCarros());
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<Cars> buscarID(@PathVariable Long id){
-        Cars cars = carsServices.buscarID(id);
-        return ResponseEntity.ok(cars);
+    public ResponseEntity<CarsResponseDTO> buscarID(@PathVariable Long id){
+        return ResponseEntity.ok(carsServices.buscarID(id));
     }
 
     @PutMapping("/id/{id}")
-    public ResponseEntity<Cars> atualizarCarros(@PathVariable Long id, @RequestBody CarsRequestDTO dto){
+    public ResponseEntity<CarsResponseDTO> atualizarCarros(@PathVariable Long id, @RequestBody CarsRequestDTO dto){
         return ResponseEntity.accepted().body(carsServices.atualizarCarro(id, dto));
     }
 

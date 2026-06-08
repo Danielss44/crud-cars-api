@@ -1,11 +1,14 @@
 package com.danielseab.cruid_cars.dto;
 
 import com.danielseab.cruid_cars.infra.entity.cars.Statuscar;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -21,20 +24,14 @@ public class CarsRequestDTO {
     private String marca; //marca
 
     @NotNull
+    @Min(1900)
     private int ano;
 
     @Positive
-    private float preco;
+    private BigDecimal preco;
 
     @Positive
     private int km;
 
-    private enum status{
-        DISPONIVEL,
-        VENDIDO,
-        RESERVADO,
-        MANUTENCAO
-    };
-    
     private Statuscar status;
 }
